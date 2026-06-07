@@ -1,24 +1,31 @@
-/*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
- */
-
 `default_nettype none
 
 module tt_um_example (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // will go high when the design is enabled
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+    input  wire [7:0] ui_in,    // První pin ui_in[0] nahrazuje clk_en
+    output wire [7:0] uo_out,   // První pin uo_out[0] nahrazuje out
+    input  wire [7:0] uio_in,   // Nepoužito (rezerva)
+    output wire [7:0] uio_out,  // Nepoužito (rezerva)
+    output wire [7:0] uio_oe,   // Nepoužito (rezerva)
+    input  wire       ena,      
+    input  wire       clk,      
+    input  wire       rst_n     
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+    // Vnitřní dráty pro propojení hradel z vašeho obrázku
+    wire w1, w2, w3, w4;
+
+    // Přesná oprava logiky z programu Digital (přidání chybějících invertorů ~)
+    assign w1 = ~(ui_in[0] & w4); // Hradlo NAND z obrázku
+    assign w2 = ~w1;              // 1. invertor
+    assign w3 = ~w2;              // 2. invertor
+    assign w4 = ~w3;              // 3. invertor (výstup a zpětná vazba)
+
+    // Vyvedení pulzů na výstup
+    assign uo_out[0] = w4;
+
+    // Bezpečné uzemnění zbytku pinů pro splnění pravidel webového serveru
+    assign uo_out[7:1] = 7'b0000000;
+    assign uio_out     = 8'b00000000;
+    assign uio_oe      = 8'b00000000;
 
 endmodule
